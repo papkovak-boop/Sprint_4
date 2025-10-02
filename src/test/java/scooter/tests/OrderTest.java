@@ -71,7 +71,7 @@ public class OrderTest extends BaseTest {
 
         // Заполнение формы заказа
         orderPage.fillFirstPage(name, lastName, address, metro, phone);
-        orderPage.fillSecondPage(date, comment, color);
+        orderPage.fillSecondPage(date, comment, color, buttonPosition);
         orderPage.confirmOrder();
 
         // Проверка успешного оформления

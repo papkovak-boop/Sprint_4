@@ -3,7 +3,6 @@ package scooter.pages;
 import org.openqa.selenium.By;
 import org.openqa.selenium.Keys;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 import java.time.Duration;
@@ -51,17 +50,31 @@ public class OrderPage {
     // Поле "Комментарий для курьера"
     private final By commentField = By.xpath(".//input[@placeholder='Комментарий для курьера']");
 
-    // Кнопка "Заказать"
-    private final By orderButton = By.xpath(".//button[text()='Заказать']");
+    // Кнопка "Заказать" верхняя
+    private final By orderButtonTop = By.xpath("//button[contains(@class='Button_Button__ra12g') and text()='Заказать']");
+
+    // Кнопка "Заказать" нижняя
+    private final By orderButtonBottom = By.xpath("//button[contains(@class,'Button_Middle__1CSJM') and text()='Заказать']");
 
     // Кнопка "Да" в подтверждающем окне
-    private final By confirmButton = By.xpath(".//button[text()='Да']");
+    private final By confirmButton = By.xpath(".//button[contains(., 'Да')]");
 
     // Сообщение об успешном создании заказа
-    private final By successMessage = By.xpath(".//div[contains(text(), 'Заказ оформлен')]");
+    private final By successMessage = By.xpath(".//div[contains(., 'Заказ оформлен')]");
 
     public OrderPage(WebDriver driver) {
         this.driver = driver;
+    }
+
+    public void clickOrderButton(String position) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        if ("top".equals(position)) {
+            wait.until(ExpectedConditions.elementToBeClickable(orderButtonTop));
+            driver.findElement(orderButtonTop).click();
+        } else {
+            wait.until(ExpectedConditions.elementToBeClickable(orderButtonBottom));
+            driver.findElement(orderButtonBottom).click();
+        }
     }
 
     public void fillFirstPage(String name, String lastName, String address, String metro, String phone) {
@@ -74,35 +87,41 @@ public class OrderPage {
         driver.findElement(nextButton).click();
     }
 
-    public void fillSecondPage(String date, String comment, String color) {
-        new WebDriverWait(driver, Duration.ofSeconds(5))
-                .until(ExpectedConditions.elementToBeClickable(dateField));
+    public void fillSecondPage(String date, String comment, String color, String buttonPosition) {
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait.until(ExpectedConditions.elementToBeClickable(dateField));
 
         driver.findElement(dateField).sendKeys(date);
         driver.findElement(dateField).sendKeys(Keys.ENTER);
 
+        wait.until(ExpectedConditions.elementToBeClickable(rentalPeriod));
         driver.findElement(rentalPeriod).click();
+
+        wait.until(ExpectedConditions.elementToBeClickable(periodOption));
         driver.findElement(periodOption).click();
 
         if ("black".equals(color)) {
+            wait.until(ExpectedConditions.elementToBeClickable(colorBlack));
             driver.findElement(colorBlack).click();
         } else {
+            wait.until(ExpectedConditions.elementToBeClickable(colorGrey));
             driver.findElement(colorGrey).click();
         }
 
         driver.findElement(commentField).sendKeys(comment);
-        driver.findElement(orderButton).click();
+        wait.until(ExpectedConditions.elementToBeClickable(orderButtonBottom));
+        clickOrderButton(buttonPosition);
     }
 
     public void confirmOrder() {
-        new WebDriverWait(driver, Duration.ofSeconds(5))
-                .until(ExpectedConditions.elementToBeClickable(confirmButton));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait.until(ExpectedConditions.elementToBeClickable(confirmButton));
         driver.findElement(confirmButton).click();
     }
 
     public boolean isSuccessMessageDisplayed() {
-        new WebDriverWait(driver, Duration.ofSeconds(5))
-                .until(ExpectedConditions.visibilityOfElementLocated(successMessage));
+        WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(5));
+        wait.until(ExpectedConditions.visibilityOfElementLocated(successMessage));
         return driver.findElement(successMessage).isDisplayed();
     }
 }
